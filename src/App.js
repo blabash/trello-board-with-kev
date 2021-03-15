@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState, useReducer, useRef } from 'react';
 
 import './App.css';
 import TodoColumn from './TodoColumn';
@@ -43,9 +43,12 @@ const reducer = (state, { type, payload }) => {
   }
 };
 
+const colors = ['#f5a7a7', '#b3b3fa', '#c4d78d', '#928dd7'];
+
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [columnName, setColumnName] = useState('');
+  const ref = useRef(1);
 
   function addNewColumn(e) {
     e.preventDefault();
@@ -55,17 +58,18 @@ function App() {
       payload: {
         columnName,
         columnId: Math.random().toString(36).substring(7),
+        color: colors[ref.current % colors.length],
       },
     });
     setColumnName('');
+    ref.current === colors.length ? (ref.current = 1) : (ref.current += 1);
   }
-  console.log(state);
 
   return (
     <div
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline' }}>
         {state.columns.map((column, idx) => (
           <TodoColumn key={idx} dispatch={dispatch} {...column} state={state} />
         ))}

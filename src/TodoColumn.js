@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-function TodoColumn({ dispatch, columnName, columnId, state }) {
+function TodoColumn({ dispatch, columnName, columnId, state, color }) {
   const [todo, setTodo] = useState('');
-  console.log(state);
 
   function addTodo(e) {
     e.preventDefault();
@@ -21,29 +20,28 @@ function TodoColumn({ dispatch, columnName, columnId, state }) {
   return (
     <div
       style={{
-        backgroundColor: 'blueviolet',
+        backgroundColor: color,
         margin: '20px',
         minWidth: '150px',
+        borderRadius: '5px',
       }}
     >
       <h2>{columnName}</h2>
-      <div>
-        {state.todos
-          .filter((t) => t.columnId === columnId)
-          .map((todo) => (
-            <div
-              key={todo.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
-            >
-              <button>{'<<'}</button>
-              {todo.todo}
-              <button>{'>>'}</button>
-            </div>
-          ))}
-      </div>
+      {state.todos
+        .filter((t) => t.columnId === columnId)
+        .map((todo) => (
+          <div
+            key={todo.id}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            <button>{'<'}</button>
+            {todo.todo}
+            <button>{'>'}</button>
+          </div>
+        ))}
       <form onSubmit={addTodo}>
         <input
           type='text'
