@@ -1,10 +1,28 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { ADD_TODO } from './actionTypes';
+function Todo({ todo, columnId, changeColumn }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+      }}
+    >
+      <button onClick={() => changeColumn(todo, columnId, 'left')}>
+        {'<'}
+      </button>
+      {todo.todo}
+      <button onClick={() => changeColumn(todo, columnId, 'right')}>
+        {'>'}
+      </button>
+    </div>
+  );
+}
 
 function TodoColumn({
-  dispatch,
+  addTodo,
   moveColumn,
   changeColumn,
   columnName,
@@ -14,19 +32,6 @@ function TodoColumn({
 }) {
   const [todo, setTodo] = useState('');
 
-  function addTodo(e) {
-    e.preventDefault();
-    if (!todo) return;
-    dispatch({
-      type: ADD_TODO,
-      payload: {
-        id: Math.random().toString(36).substring(7),
-        todo,
-        columnId,
-      },
-    });
-    setTodo('');
-  }
   return (
     <div
       style={{
@@ -54,24 +59,20 @@ function TodoColumn({
       {state.todos
         .filter((t) => t.columnId === columnId)
         .map((todo) => (
-          <div
+          <Todo
             key={todo.id}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
-          >
-            <button onClick={() => changeColumn(todo, columnId, 'left')}>
-              {'<'}
-            </button>
-            {todo.todo}
-            <button onClick={() => changeColumn(todo, columnId, 'right')}>
-              {'>'}
-            </button>
-          </div>
+            todo={todo}
+            changeColumn={changeColumn}
+            columnId={columnId}
+          />
         ))}
-      <form onSubmit={addTodo}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addTodo(todo, columnId);
+          setTodo('');
+        }}
+      >
         <input
           type='text'
           value={todo}
@@ -86,6 +87,14 @@ function TodoColumn({
   );
 }
 
-TodoColumn.propTypes = {};
+TodoColumn.propTypes = {
+  addTodo: PropTypes.func.isRequired,
+  moveColumn: PropTypes.func.isRequired,
+  changeColumn: PropTypes.func.isRequired,
+  columnName: PropTypes.string.isRequired,
+  columnId: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+  state: PropTypes.object.isRequired,
+};
 
 export default TodoColumn;
