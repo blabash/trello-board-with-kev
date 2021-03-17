@@ -5,6 +5,7 @@ import { ADD_TODO } from './actionTypes';
 
 function TodoColumn({
   dispatch,
+  moveColumn,
   changeColumn,
   columnName,
   columnId,
@@ -35,7 +36,17 @@ function TodoColumn({
         borderRadius: '5px',
       }}
     >
-      <h2>{columnName}</h2>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}
+      >
+        <button onClick={() => moveColumn(columnId, 'left')}>{'<'}</button>
+        <p style={{ margin: '0' }}>move column</p>
+        <button onClick={() => moveColumn(columnId, 'right')}>{'>'}</button>
+      </div>
+      <h2 style={{ textAlign: 'center' }}>{columnName}</h2>
       {state.todos
         .filter((t) => t.columnId === columnId)
         .map((todo) => (

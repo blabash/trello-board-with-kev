@@ -6,6 +6,8 @@ import {
   ADD_COLUMN,
   TO_LEFT_COLUMN,
   TO_RIGHT_COLUMN,
+  MOVE_LEFT,
+  MOVE_RIGHT,
 } from './actionTypes';
 import TodoColumn from './TodoColumn';
 
@@ -16,6 +18,9 @@ const reducer = (state, { type, payload }) => {
   let newColumnId;
   let newTodo;
   let newTodosList;
+  let columnsClone;
+  let idxToSwap;
+
   switch (type) {
     case ADD_COLUMN:
       return {
@@ -26,6 +31,39 @@ const reducer = (state, { type, payload }) => {
       return {
         ...state,
         todos: [...state.todos, payload],
+      };
+    case MOVE_LEFT:
+      columnIdx = state.columns.findIndex(
+        (c) => c.columnId === payload.columnId
+      );
+      columnsClone = [...state.columns];
+      idxToSwap = columnIdx ? columnIdx - 1 : columnsClone.length - 1;
+
+      [columnsClone[columnIdx], columnsClone[idxToSwap]] = [
+        columnsClone[idxToSwap],
+        columnsClone[columnIdx],
+      ];
+
+      return {
+        ...state,
+        columns: columnsClone,
+      };
+    case MOVE_RIGHT:
+      columnIdx = state.columns.findIndex(
+        (c) => c.columnId === payload.columnId
+      );
+
+      columnsClone = [...state.columns];
+      idxToSwap = columnIdx === columnsClone.length - 1 ? 0 : columnIdx + 1;
+
+      [columnsClone[columnIdx], columnsClone[idxToSwap]] = [
+        columnsClone[idxToSwap],
+        columnsClone[columnIdx],
+      ];
+
+      return {
+        ...state,
+        columns: columnsClone,
       };
     case TO_LEFT_COLUMN:
       columnIdx = state.columns.findIndex(
@@ -86,6 +124,17 @@ function App() {
   const [columnName, setColumnName] = useState('');
   const ref = useRef(1);
 
+  function moveColumn(columnId, direction) {
+    const type = direction === 'left' ? MOVE_LEFT : MOVE_RIGHT;
+
+    dispatch({
+      type,
+      payload: {
+        columnId,
+      },
+    });
+  }
+
   function changeColumn(todo, columnId, direction) {
     const type = direction === 'left' ? TO_LEFT_COLUMN : TO_RIGHT_COLUMN;
 
@@ -127,6 +176,7 @@ function App() {
             {...column}
             state={state}
             changeColumn={changeColumn}
+            moveColumn={moveColumn}
           />
         ))}
       </div>
