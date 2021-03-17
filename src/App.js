@@ -4,72 +4,49 @@ import './App.css';
 import {
   ADD_TODO,
   ADD_COLUMN,
-  TO_LEFT_COLUMN,
-  TO_RIGHT_COLUMN,
-  MOVE_LEFT,
-  MOVE_RIGHT,
+  CHANGE_COLUMN,
+  MOVE_COLUMN,
 } from './actionTypes';
 
 import TodoColumn from './TodoColumn';
 
-function moveLeft(state, payload) {
+function moveColumn(state, payload) {
   const columnIdx = state.columns.findIndex(
     (c) => c.columnId === payload.columnId
   );
-  const columnsClone = [...state.columns];
-  const idxToSwap = columnIdx ? columnIdx - 1 : columnsClone.length - 1;
 
-  [columnsClone[columnIdx], columnsClone[idxToSwap]] = [
-    columnsClone[idxToSwap],
-    columnsClone[columnIdx],
+  let idxToSwapWith;
+  if (payload.direction === 'left') {
+    idxToSwapWith = columnIdx ? columnIdx - 1 : state.columns.length - 1;
+  } else {
+    idxToSwapWith = columnIdx === state.columns.length - 1 ? 0 : columnIdx + 1;
+  }
+
+  const modifiedColumns = [...state.columns];
+  [modifiedColumns[columnIdx], modifiedColumns[idxToSwapWith]] = [
+    modifiedColumns[idxToSwapWith],
+    modifiedColumns[columnIdx],
   ];
 
-  return columnsClone;
+  return modifiedColumns;
 }
 
-function moveRight(state, payload) {
+function changeColumn(state, payload) {
   const columnIdx = state.columns.findIndex(
     (c) => c.columnId === payload.columnId
   );
 
-  const columnsClone = [...state.columns];
-  const idxToSwap = columnIdx === columnsClone.length - 1 ? 0 : columnIdx + 1;
-
-  [columnsClone[columnIdx], columnsClone[idxToSwap]] = [
-    columnsClone[idxToSwap],
-    columnsClone[columnIdx],
-  ];
-
-  return columnsClone;
-}
-
-function toLeftColumn(state, payload) {
-  const columnIdx = state.columns.findIndex(
-    (c) => c.columnId === payload.columnId
-  );
-
-  const newColumnId = columnIdx
-    ? state.columns[columnIdx - 1].columnId
-    : state.columns[state.columns.length - 1].columnId;
-
-  const newTodo = { ...payload.todo, columnId: newColumnId };
-  const newTodosList = [
-    ...state.todos.filter((t) => t.id !== payload.todo.id),
-    newTodo,
-  ];
-
-  return newTodosList;
-}
-
-function toRightColumn(state, payload) {
-  const columnIdx = state.columns.findIndex(
-    (c) => c.columnId === payload.columnId
-  );
-
-  const newColumnId =
-    columnIdx === state.columns.length - 1
-      ? state.columns[0].columnId
-      : state.columns[columnIdx + 1].columnId;
+  let newColumnId;
+  if (payload.direction === 'left') {
+    newColumnId = columnIdx
+      ? state.columns[columnIdx - 1].columnId
+      : state.columns[state.columns.length - 1].columnId;
+  } else {
+    newColumnId =
+      columnIdx === state.columns.length - 1
+        ? state.columns[0].columnId
+        : state.columns[columnIdx + 1].columnId;
+  }
 
   const newTodo = { ...payload.todo, columnId: newColumnId };
   const newTodosList = [
@@ -96,28 +73,16 @@ const reducer = (state, { type, payload }) => {
         todos: [...state.todos, payload],
       };
 
-    case MOVE_LEFT:
+    case MOVE_COLUMN:
       return {
         ...state,
-        columns: moveLeft(state, payload),
+        columns: moveColumn(state, payload),
       };
 
-    case MOVE_RIGHT:
+    case CHANGE_COLUMN:
       return {
         ...state,
-        columns: moveRight(state, payload),
-      };
-
-    case TO_LEFT_COLUMN:
-      return {
-        ...state,
-        todos: toLeftColumn(state, payload),
-      };
-
-    case TO_RIGHT_COLUMN:
-      return {
-        ...state,
-        todos: toRightColumn(state, payload),
+        todos: changeColumn(state, payload),
       };
 
     default:
@@ -148,12 +113,11 @@ function App() {
   }
 
   function moveColumn(columnId, direction) {
-    const type = direction === 'left' ? MOVE_LEFT : MOVE_RIGHT;
-
     dispatch({
-      type,
+      type: MOVE_COLUMN,
       payload: {
         columnId,
+        direction,
       },
     });
   }
@@ -171,13 +135,12 @@ function App() {
   }
 
   function changeColumn(todo, columnId, direction) {
-    const type = direction === 'left' ? TO_LEFT_COLUMN : TO_RIGHT_COLUMN;
-
     dispatch({
-      type,
+      type: CHANGE_COLUMN,
       payload: {
         todo,
         columnId,
+        direction,
       },
     });
   }
