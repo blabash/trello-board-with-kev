@@ -1,14 +1,23 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-function TodoColumn({ dispatch, columnName, columnId, state, color }) {
+import { ADD_TODO } from './actionTypes';
+
+function TodoColumn({
+  dispatch,
+  changeColumn,
+  columnName,
+  columnId,
+  state,
+  color,
+}) {
   const [todo, setTodo] = useState('');
 
   function addTodo(e) {
     e.preventDefault();
     if (!todo) return;
     dispatch({
-      type: 'ADD_TODO',
+      type: ADD_TODO,
       payload: {
         id: Math.random().toString(36).substring(7),
         todo,
@@ -37,9 +46,13 @@ function TodoColumn({ dispatch, columnName, columnId, state, color }) {
               justifyContent: 'space-between',
             }}
           >
-            <button>{'<'}</button>
+            <button onClick={() => changeColumn(todo, columnId, 'left')}>
+              {'<'}
+            </button>
             {todo.todo}
-            <button>{'>'}</button>
+            <button onClick={() => changeColumn(todo, columnId, 'right')}>
+              {'>'}
+            </button>
           </div>
         ))}
       <form onSubmit={addTodo}>
