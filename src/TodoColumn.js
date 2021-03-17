@@ -34,12 +34,16 @@ function TodoColumn({
         margin: '20px',
         minWidth: '150px',
         borderRadius: '5px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
+          width: '100%',
         }}
       >
         <button onClick={() => moveColumn(columnId, 'left')}>{'<'}</button>
@@ -55,6 +59,7 @@ function TodoColumn({
             style={{
               display: 'flex',
               justifyContent: 'space-between',
+              width: '100%',
             }}
           >
             <button onClick={() => changeColumn(todo, columnId, 'left')}>
