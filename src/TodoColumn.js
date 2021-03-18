@@ -25,6 +25,8 @@ function TodoColumn({
   addTodo,
   moveColumn,
   changeColumn,
+  showColumnRenameModal,
+  showColumnDeleteModal,
   columnName,
   columnId,
   state,
@@ -36,7 +38,7 @@ function TodoColumn({
     <div
       style={{
         backgroundColor: color,
-        margin: '20px',
+        margin: '10px',
         minWidth: '150px',
         borderRadius: '5px',
         display: 'flex',
@@ -44,6 +46,14 @@ function TodoColumn({
         alignItems: 'center',
       }}
     >
+      <div style={{ alignSelf: 'flex-end' }}>
+        <button
+          style={{ cursor: 'pointer' }}
+          onClick={() => showColumnDeleteModal(columnId, columnName)}
+        >
+          x
+        </button>
+      </div>
       <div
         style={{
           display: 'flex',
@@ -55,7 +65,13 @@ function TodoColumn({
         <p style={{ margin: '0' }}>move column</p>
         <button onClick={() => moveColumn(columnId, 'right')}>{'>'}</button>
       </div>
-      <h2 style={{ textAlign: 'center' }}>{columnName}</h2>
+      <h2
+        style={{ textAlign: 'center', cursor: 'pointer' }}
+        onClick={() => showColumnRenameModal(columnId, columnName)}
+        title='Click to rename'
+      >
+        {columnName}
+      </h2>
       {state.todos
         .filter((t) => t.columnId === columnId)
         .map((todo) => (
@@ -76,8 +92,6 @@ function TodoColumn({
         <input
           type='text'
           value={todo}
-          name=''
-          id=''
           placeholder='Add new todo'
           onChange={(e) => setTodo(e.target.value)}
         />
